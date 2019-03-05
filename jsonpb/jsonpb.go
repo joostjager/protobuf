@@ -40,6 +40,7 @@ package jsonpb
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -513,6 +514,14 @@ func (m *Marshaler) marshalValue(out *errWriter, prop *proto.Properties, v refle
 			out.write(m.Indent)
 		}
 		out.write("]")
+		return out.err
+	}
+
+	// Write byte slices in hex encoding.
+	if v.Kind() == reflect.Slice && v.Type().Elem().Kind() == reflect.Uint8 {
+		out.write(`"`)
+		out.write(hex.EncodeToString(v.Bytes()))
+		out.write(`"`)
 		return out.err
 	}
 
